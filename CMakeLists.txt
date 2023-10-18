@@ -26,11 +26,19 @@ SET(PACKAGE_VERSION "${PROJECT_MAJOR}.${PROJECT_MINOR}.${PROJECT_PATCH}")
 IF (WIN32)
     ADD_DEFINITIONS(-DDOCDIR=".")
 ELSE (WIN32)
-    SET(SYSCONFDIR
-            "/etc"
-            CACHE PATH
-            "Directory for system configuration of apvlv [/etc]"
-            )
+    IF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+        SET(SYSCONFDIR
+                "/usr/local/etc"
+                CACHE PATH
+                "Directory for system configuration of apvlv [/usr/local/etc]"
+                )
+    ELSE (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+        SET(SYSCONFDIR
+                "/etc"
+                CACHE PATH
+                "Directory for system configuration of apvlv [/etc]"
+                )
+    ENDIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     ADD_DEFINITIONS(-DSYSCONFDIR="${SYSCONFDIR}")
 
     SET(DOCDIR
@@ -104,6 +112,14 @@ IF (UNIX)
         SET(CPACK_GENERATOR RPM)
         SET(CPACK_RPM_PACKAGE_REQUIRES "gtk3")
     ENDIF ()
+
+    IF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+        MESSAGE(STATUS "current platform: FreeBSD")
+        SET(CPACK_GENERATOR FreeBSD)
+        SET(CPACK_FREEBSD_PACKAGE_DEPS "eboot-tools")
+        add_link_options("-rdynamic")
+    ENDIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+
     SET(CPACK_SOURCE_GENERATOR TGZ)
     SET(CPACK_SOURCE_IGNORE_FILES
             ${CMAKE_BINARY_DIR}
